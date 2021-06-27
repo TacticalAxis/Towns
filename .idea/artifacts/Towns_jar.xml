@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Towns:jar">
+    <output-path>$PROJECT_DIR$/../../../../../../../Dev-Servers/TestingServer1.16.5/plugins/</output-path>
+    <root id="archive" name="Towns.jar">
+      <element id="module-output" name="Towns" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../../../.libraries/EverythingAPI.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

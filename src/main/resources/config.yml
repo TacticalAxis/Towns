@@ -1,0 +1,59 @@
+# CONFIGURATION FILE
+
+# MODIFY THE NAME OF THE CURRENCY
+currency-name: "NZD"
+
+# MODIFY THE SCOREBOARD
+scoreboard-title: "&2&lTowns:"
+scoreboard-entry-colour: "&6"
+
+# STARTING AMOUNT - this is the amount of money a player will require to start a town
+town-start-amount: 100.0
+
+# MODIFY THE MESSAGES
+# placeholders: %amount%, %currency%, %town%
+message-set-town-money: "&e%town% &awas set to &e%amount% %currency%&a!"
+message-send-town-money: "&aYou sent &e%amount% %currency% &ato &e%town%"
+# placeholders: %town%
+message-town-created: "&aYou successfully created town &e%town%"
+message-town-joined: "&aYou successfully joined town &e%town%"
+message-town-left: "&aYou successfully left town &e%town%"
+# placeholders: none
+message-already-in-town: "&cYou are already part of a town! You need to do /town leave, then /town join <town name>"
+message-not-in-town: "&cYou are not in a town!"
+message-town-exists: "&cA town with that name already exists!"
+message-town-not-exists: "&cA town with that name does not exist!"
+
+message-player-insufficient-funds: "You do not have enough money!"
+
+# MODIFY SELLABLE ITEMS
+#key: ITEM_NAME;price
+sellable-items:
+  - COAL_ORE;5
+  - IRON_ORE;5
+  - GOLD_ORE;5
+  - DIAMOND_ORE;5
+  - REDSTONE_ORE;5
+  - LAPIS_ORE;5
+  - ANCIENT_DEBRIS;5
+  - STRING;6
+  - FEATHER;7
+  - BLAZE_ROD;4
+  - SPIDER_EYE;3
+  - SULPHUR;5
+  - ROTTEN_FLESH;4
+  - ENDER_PEARL;4
+  - EMERALD;4
+  - TOTEM_OF_UNDYING;4
+  - GHAST_TEAR;3
+  - PORKCHOP;5
+  - COOKED_PORKCHOP;5
+  - MAGMA_CREAM;4
+  - ARROW;5
+  - BONE;5
+  - SLIME_BALL;5
+  - GOLD_NUGGET;4
+  - WHEAT;5
+  - BEETROOT;4
+  - CARROTS;4
+  - POTATOES;3

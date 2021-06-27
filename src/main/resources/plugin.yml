@@ -1,0 +1,38 @@
+name: PlayerTowns
+main: net.tak7.towns.PlayerTowns
+version: 1.0
+description: A plugin that adds Town functionality
+author: NathanD256
+prefix: PT
+api-version: 1.16
+commands:
+  playertowns:
+    aliases: pt
+    description: Main command
+    permission: cmd.towns.admin
+    permission-message: §cYou do not have permission to do that
+    usage: /<command>
+  town:
+    aliases: t
+    description: Town command
+    permission: cmd.towns.player
+    permission-message: §cYou do not have permission to do that
+    usage: /<command>
+  sellhand:
+    aliases: sh
+    description: Sell hand command
+    permission: cmd.towns.player
+    permission-message: §cYou do not have permission to do that
+    usage: /<command>
+  join:
+    aliases: j
+    description: Join command
+    permission: cmd.towns.player
+    permission-message: §cYou do not have permission to do that
+    usage: /<command>
+  balance:
+    aliases: bal
+    description: Balance command
+    permission: cmd.towns.player
+    permission-message: §cYou do not have permission to do that
+    usage: /<command>
