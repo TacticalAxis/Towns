@@ -1,6 +1,7 @@
 package net.tak7.towns.commands;
 
 import net.tak7.towns.PlayerTowns;
+import net.tak7.towns.objects.CC;
 import net.tak7.towns.objects.Town;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -41,26 +42,24 @@ public class PlayerTownCommand implements CommandExecutor, TabCompleter {
                             try {
                                 double money = Double.parseDouble(args[2]);
                                 if (money < 0) {
-                                    sender.sendMessage(ChatColor.RED + "Money cannot be less than 0!");
+                                    sender.sendMessage(CC.getMessage("use-real-number"));
                                     return true;
                                 } else {
                                     town.setTownMoney(money);
-                                    sender.sendMessage(
-                                            ChatColor.translateAlternateColorCodes('&',
-                                                    PlayerTowns.mainConfig.cfg().getString("message-set-town-money")
-                                                            .replace("%town%", town.getTownName())
-                                                            .replace("%amount%", String.valueOf(money))
-                                                            .replace("%currency%", PlayerTowns.CURRENCY_NAME)));
+                                    sender.sendMessage(CC.getMessage("set-town-money")
+                                            .replace("%town%", town.getTownName())
+                                            .replace("%amount%", String.valueOf(money))
+                                            .replace("%currency%", PlayerTowns.CURRENCY_NAME));
                                 }
                             } catch (Exception e) {
-                                sender.sendMessage(ChatColor.RED + "Money must be a number!");
+                                sender.sendMessage(CC.getMessage("use-real-number"));
                             }
                         } else {
                             sendHelp(sender);
                         }
                     }
                 } else {
-                    sender.sendMessage(ChatColor.RED + "This town does not exist!");
+                    sender.sendMessage(CC.getMessage("town-not-exists"));
                 }
             }
         }

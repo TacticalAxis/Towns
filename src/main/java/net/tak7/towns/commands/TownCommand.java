@@ -134,6 +134,13 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                         return true;
                     }
 
+                    for (UUID mem : town.getMembers().keySet()) {
+                        if (mem.compareTo(invited.getUniqueId()) == 0) {
+                            player.sendMessage(CC.getMessage("invitee-in-town"));
+                            return true;
+                        }
+                    }
+
                     new Invite(invited, town);
                     invited.sendMessage(ChatColor.YELLOW + player.getName() + ChatColor.GREEN + " has invited you to join " + ChatColor.YELLOW + town.getTownName() + ChatColor.GREEN + ". Do " + ChatColor.YELLOW + "/join " + town.getTownName() + ChatColor.GREEN + " to join it."); //config
 

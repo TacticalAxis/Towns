@@ -5,6 +5,7 @@ import net.tak7.api.FastBoard;
 import net.tak7.towns.commands.*;
 import net.tak7.towns.listeners.InventoryEvents;
 import net.tak7.towns.listeners.ServerEvents;
+import net.tak7.towns.objects.CC;
 import net.tak7.towns.objects.Invite;
 import net.tak7.towns.objects.Town;
 import org.bukkit.Bukkit;
@@ -165,7 +166,7 @@ public class PlayerTowns extends JavaPlugin {
         if (colour == null) {
             colour = ChatColor.GREEN + "";
         } else {
-            colour = ChatColor.translateAlternateColorCodes('&', colour);
+            colour = CC.tr(colour);
         }
         int count = 1;
         for (Town town : Town.getOrderedTowns()) {

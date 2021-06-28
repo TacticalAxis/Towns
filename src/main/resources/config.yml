@@ -1,7 +1,7 @@
 # CONFIGURATION FILE
 
 # MODIFY THE NAME OF THE CURRENCY
-currency-name: "NZD"
+currency-name: "$"
 
 # MODIFY THE SCOREBOARD
 scoreboard-title: "&2&lTowns:"
@@ -11,20 +11,34 @@ scoreboard-entry-colour: "&6"
 town-start-amount: 100.0
 
 # MODIFY THE MESSAGES
-# placeholders: %amount%, %currency%, %town%
-message-set-town-money: "&e%town% &awas set to &e%amount% %currency%&a!"
-message-send-town-money: "&aYou sent &e%amount% %currency% &ato &e%town%"
+# placeholders: none
+message-already-in-town: "&cYou are already part of a town! You need to do /town leave, then /town join <town name>"
+message-invitee-in-town: "&cThat player is already in this town"
+message-not-in-town: "&cYou are not in a town!"
+message-town-exists: "&cA town with that name already exists!"
+message-town-not-exists: "&cA town with that name does not exist!"
+message-no-permission: "&cYou do not have permission to do this!"
+message-player-no-exist: "&cThat player does not exist!"
+message-use-real-number: "&cYou need to enter a real non-negative number!"
+message-no-invite: "&cYou do not have an invite for that town!"
+message-item-not-sellable: "&cYou can't sell this item!"
+message-insufficient-funds: "&cYou do not have enough money!"
+message-shop-in-use: "&cSomeone else is using that shop right now!"
+# placeholders: %money%
+message-check-balance: "&aYour balance is &3%money%"
 # placeholders: %town%
 message-town-created: "&aYou successfully created town &e%town%"
 message-town-joined: "&aYou successfully joined town &e%town%"
 message-town-left: "&aYou successfully left town &e%town%"
-# placeholders: none
-message-already-in-town: "&cYou are already part of a town! You need to do /town leave, then /town join <town name>"
-message-not-in-town: "&cYou are not in a town!"
-message-town-exists: "&cA town with that name already exists!"
-message-town-not-exists: "&cA town with that name does not exist!"
-
-message-player-insufficient-funds: "You do not have enough money!"
+# placeholders: %player%, %money%
+message-set-player-balance: "&aYou set &e%player% &ato &e%money%"
+message-check-balance-other: "&a%player%'s balance is &e%money%"
+# placeholders: %amount%, %currency%, %town%
+message-set-town-money: "&e%town% &awas set to &e%amount% %currency%&a!"
+message-send-town-money: "&aYou sent &e%amount% %currency% &ato &e%town%"
+# placeholders: %amount%, %item%, %currency%, %money%
+message-sell-item: "&aYou successfully sold &e%amount%&ax&e%item% &afor &e%currency%%money%!"
+message-buy-item: "&aYou successfully bought &e%amount%&ax&e%item% &afor &e%currency%%money%!"
 
 # MODIFY SELLABLE ITEMS
 #key: ITEM_NAME;price

@@ -1,6 +1,7 @@
 package net.tak7.towns.commands;
 
 import net.tak7.api.PlayerUtils;
+import net.tak7.towns.objects.CC;
 import net.tak7.towns.objects.Money;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -21,31 +22,35 @@ public class BalanceCommand implements CommandExecutor, TabCompleter {
         // /bal and /bal set <playerName> <amount>
         if (args.length == 0) {
             if (sender instanceof Player) {
-                sender.sendMessage("Your balance is: " + Money.getMoney(((Player) sender).getUniqueId()));
+                sender.sendMessage(CC.getMessage("check-balance").replace("%money%", String.valueOf(Money.getMoney(((Player) sender).getUniqueId()))));
             } else {
                 sender.sendMessage(ChatColor.RED + "You need to be a player to use this command, or do /bal <player name>");
             }
         } else if (args.length == 1) {
             if (!sender.hasPermission("cmd.towns.admin")) {
-                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                sender.sendMessage(CC.getMessage("no-permission"));
                 return true;
             }
 
             String playerName = args[0];
             String uuid = PlayerUtils.getUUIDFromName(playerName, false);
             if (uuid == null) {
-                sender.sendMessage(ChatColor.RED + "That player does not exist!");
+                sender.sendMessage(CC.getMessage("player-no-exist"));
                 return true;
             }
+
+            sender.sendMessage(CC.getMessage("check-balance-other")
+                    .replace("%money%", String.valueOf(Money.getMoney(((Player) sender).getUniqueId())))
+                    .replace("%player%", playerName));
         } else if (args.length == 3) {
             if (!sender.hasPermission("cmd.towns.admin")) {
-                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                sender.sendMessage(CC.getMessage("no-permission"));
                 return true;
             }
 
             String uuid = PlayerUtils.getUUIDFromName(args[0], false);
             if (uuid == null) {
-                sender.sendMessage(ChatColor.RED + "That player does not exist!");
+                sender.sendMessage(CC.getMessage("player-no-exist"));
                 return true;
             }
 
@@ -62,12 +67,12 @@ public class BalanceCommand implements CommandExecutor, TabCompleter {
                     throw new NumberFormatException("");
                 }
             } catch (Exception e) {
-                sender.sendMessage(ChatColor.RED + "You need to enter a real non-negative number!");
+                sender.sendMessage(CC.getMessage("use-real-number"));
                 return true;
             }
 
             Money.setMoney(UUID.fromString(uuid), amount);
-            sender.sendMessage("You set " + args[0] + " to " + amount); // config
+            sender.sendMessage(CC.getMessage("set-player-balance").replace("%player%", args[0]).replace("%money%", String.valueOf(amount)));
         }
         return true;
     }
@@ -100,7 +105,8 @@ public class BalanceCommand implements CommandExecutor, TabCompleter {
         if (sender.hasPermission("cmd.towns.admin")) {
             sender.sendMessage("§2§l§m=============§r§e Towns Help §e §2§l§m=============");
             sender.sendMessage("§a/balance: §7Base command");
-            sender.sendMessage("§a   set <player> <amount>: §7Set player balance");
+            sender.sendMessage("§a   <player>: §7See player balance");
+            sender.sendMessage("§a   <player> set <amount>: §7Set player balance");
             sender.sendMessage("§2§l§m====================================");
         }
     }

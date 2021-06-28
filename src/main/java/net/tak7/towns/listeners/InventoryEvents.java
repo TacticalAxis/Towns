@@ -1,5 +1,7 @@
 package net.tak7.towns.listeners;
 
+import net.tak7.towns.PlayerTowns;
+import net.tak7.towns.objects.CC;
 import net.tak7.towns.objects.Money;
 import net.tak7.towns.objects.Town;
 import org.bukkit.ChatColor;
@@ -27,7 +29,7 @@ public class InventoryEvents implements Listener {
                 event.setCancelled(true);
                 if (event.getViewers().size() > 1) {
                     event.getWhoClicked().closeInventory();
-                    event.getWhoClicked().sendMessage(ChatColor.RED + "Someone else is currently using that inventory!");
+                    event.getWhoClicked().sendMessage(CC.getMessage("shop-in-use"));
                     return;
                 }
 
@@ -68,17 +70,21 @@ public class InventoryEvents implements Listener {
                             if (playerTown != buyFrom) {
                                 double price = Town.getPrice(clickedItem.getType().name());
                                 if (Money.getMoney(player.getUniqueId()) < price) {
-                                    player.sendMessage(ChatColor.RED + "Insufficient Funds!");
+                                    player.sendMessage(CC.getMessage("insufficient-funds"));
                                     return;
                                 }
                                 Money.subtractMoney(player.getUniqueId(), price);
-                                player.sendMessage(ChatColor.GREEN + "You bought " + mat.name() + " for " + price + "!");
+                                player.sendMessage(CC.getMessage("buy-item")
+                                        .replace("%amount%", String.valueOf(1))
+                                        .replace("%money%", String.valueOf(price))
+                                        .replace("%item%", mat.name())
+                                        .replace("%currency%", PlayerTowns.CURRENCY_NAME));
                             }
                             clickedItem.setAmount(clickedItem.getAmount() - 1);
                             player.getInventory().addItem(new ItemStack(mat, 1));
                         }
                     } else {
-                        player.sendMessage(ChatColor.RED + "You cannot sell this item!");
+                        player.sendMessage(CC.getMessage("item-not-sellable"));
                     }
                 }
             }

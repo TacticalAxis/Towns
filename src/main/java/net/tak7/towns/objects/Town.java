@@ -225,38 +225,36 @@ public class Town {
         return getMembers().get(player);
     }
 
-    public Transaction addMoney(double amount) {
+    public void addMoney(double amount) {
         try {
             double a = townMoney + amount; // just to test for invalid values
             townMoney += amount;
-            return Transaction.SUCCESS;
         } catch (Exception e) {
-            return Transaction.FAIL_INVALID_VALUE;
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Error adding money: " + amount + " to: " + getTownName());
+            e.printStackTrace();
         }
     }
 
-    public Transaction removeMoney(double amount) {
+    public void removeMoney(double amount) {
         try {
             double a = townMoney - amount; // just to test for invalid values
-            if (townMoney - amount < 0) {
-                return Transaction.FAIL_INSUFFICIENT_FUNDS;
-            } else {
+            if (a >= 0) {
                 townMoney -= amount;
-                return Transaction.SUCCESS;
             }
         } catch (Exception e) {
-            return Transaction.FAIL_INVALID_VALUE;
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Error removing money: " + amount + " from: " + getTownName());
+            e.printStackTrace();
         }
     }
 
-    public Transaction sendMoney(Town town, double amount) {
+    public void sendMoney(Town town, double amount) {
         try {
             removeMoney(amount);
             town.addMoney(amount);
-            return Transaction.SUCCESS;
         } catch (Exception e) {
-            return Transaction.FAIL_INVALID_VALUE;
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Error sending " + amount + " from " + getTownName() + " to: " + town.getTownName());
         }
+
     }
 
     public void sendMessage(String message) {
@@ -281,30 +279,6 @@ public class Town {
         }
         return null;
     }
-
-//    public void buyItem(ItemStack item, Town sendTo, Player buyer) {
-//        if (item != null) {
-//            if (getPrice(item.getType().name()) != -1.0d) {
-//                double price = getPrice(item.getType().name());
-//                Material mat = item.clone().getType();
-//                if (sendTo.getTownMoney() - price >= 0) {
-//                    sendTo.removeMoney(price);
-//                    addMoney(price);
-//                    item.setAmount(item.getAmount() - 1);
-//                    buyer.updateInventory();
-//
-//                    buyer.getInventory().addItem(new ItemStack(mat, 1));
-//                    BuyItemEvent event = new BuyItemEvent(buyer, this, sendTo, new ItemStack(mat, 1), Transaction.SUCCESS, price);
-//                    Bukkit.getPluginManager().callEvent(event);
-//                } else {
-//                    BuyItemEvent event = new BuyItemEvent(buyer, this, sendTo,  new ItemStack(mat, 1), Transaction.FAIL_INSUFFICIENT_FUNDS, price);
-//                    Bukkit.getPluginManager().callEvent(event);
-//                }
-//            } else {
-//                buyer.sendMessage(ChatColor.RED + "Not a valid shop item.");
-//            }
-//        }
-//    }
 
     public static Town getTownFromPlayer(Player player) {
         for(Town town : PlayerTowns.towns) {

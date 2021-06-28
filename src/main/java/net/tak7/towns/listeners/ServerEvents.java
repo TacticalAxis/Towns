@@ -2,6 +2,7 @@ package net.tak7.towns.listeners;
 
 import net.tak7.api.FastBoard;
 import net.tak7.towns.PlayerTowns;
+import net.tak7.towns.objects.CC;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,7 +22,7 @@ public class ServerEvents implements Listener {
 
         FastBoard board = new FastBoard(player);
         String title = PlayerTowns.mainConfig.cfg().getString("scoreboard-title");
-        title = ChatColor.translateAlternateColorCodes('&', title != null ? title : ChatColor.GREEN + "Town Scoreboard");
+        title = CC.tr(title != null ? title : ChatColor.GREEN + "Town Scoreboard");
         board.updateTitle(title);
         PlayerTowns.boards.add(board);
     }

@@ -1,6 +1,7 @@
 package net.tak7.towns.commands;
 
 import net.tak7.towns.PlayerTowns;
+import net.tak7.towns.objects.CC;
 import net.tak7.towns.objects.Invite;
 import net.tak7.towns.objects.Rank;
 import net.tak7.towns.objects.Town;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"ConstantConditions", "NullableProblems"})
+@SuppressWarnings({"NullableProblems"})
 public class JoinCommand implements CommandExecutor, TabCompleter {
 
     @Override
@@ -29,13 +30,11 @@ public class JoinCommand implements CommandExecutor, TabCompleter {
                     if (town.playerInvited(player)) {
                         Town leave = Town.getTownFromPlayer(player);
                         if (leave != null) {
-                            player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                                    PlayerTowns.mainConfig.cfg().getString("message-town-left").replace("%town%", town.getTownName())));
+                            player.sendMessage(CC.getMessage("town-left").replace("%town%", town.getTownName()));
                             leave.removePlayer(player.getUniqueId());
                         }
                         town.getMembers().put(player.getUniqueId(), Rank.CIVILIAN);
-                        player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                                PlayerTowns.mainConfig.cfg().getString("message-town-joined").replace("%town%", town.getTownName())));
+                        player.sendMessage(CC.getMessage("town-joined").replace("%town%", town.getTownName()));
                         Invite remove = null;
                         for (Invite i : PlayerTowns.invitations) {
                             if (i.getPlayer() == player && i.getTown() == town) {
@@ -44,7 +43,7 @@ public class JoinCommand implements CommandExecutor, TabCompleter {
                         }
                         PlayerTowns.invitations.remove(remove);
                     } else {
-                        sender.sendMessage(ChatColor.RED + "You do not have an invite for that town.");
+                        sender.sendMessage(CC.getMessage("no-invite"));
                     }
                 } else {
                     sender.sendMessage(ChatColor.RED + "That town does not exist!");
