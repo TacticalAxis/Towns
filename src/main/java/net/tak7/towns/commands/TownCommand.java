@@ -134,8 +134,8 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                         return true;
                     }
 
-                    new Invite(player, town);
-                    invited.sendMessage(ChatColor.YELLOW + player.getName() + ChatColor.GREEN + " has invited you to join " + ChatColor.YELLOW + town.getTownName() + ChatColor.GREEN + ". Do " + ChatColor.YELLOW + "/join" + town.getTownName() + ChatColor.GREEN + " to join it."); //config
+                    new Invite(invited, town);
+                    invited.sendMessage(ChatColor.YELLOW + player.getName() + ChatColor.GREEN + " has invited you to join " + ChatColor.YELLOW + town.getTownName() + ChatColor.GREEN + ". Do " + ChatColor.YELLOW + "/join " + town.getTownName() + ChatColor.GREEN + " to join it."); //config
 
                 } else if (args[0].equalsIgnoreCase("shop")) {
                     // check if town real
@@ -258,10 +258,6 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                     town.removePlayer(player.getUniqueId());
                     player.sendMessage(CC.tr(PlayerTowns.mainConfig.cfg().getString("message-town-left").replace("%town%", town.getTownName())));
 
-                    // delete town if no members left
-                    if (town.getMembers().keySet().size() == 0) {
-                        PlayerTowns.towns.remove(town);
-                    }
                 } else if (args[0].equalsIgnoreCase("list")) {
                     player.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + "Towns:");
                     int count = 0;
@@ -291,15 +287,26 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage("§2§l§m=============§r§e Town Info §e §2§l§m==============");
                     sender.sendMessage("§aTown Name: " + town.getTownName());
                     sender.sendMessage("§aTown Value: " + town.getTownMoney() + " " + PlayerTowns.CURRENCY_NAME);
+                    sender.sendMessage("§aTown Role: " + town.getRank(player.getUniqueId()));
                     StringBuilder names = new StringBuilder();
                     for (UUID member : town.getMembers().keySet()) {
                         names.append(PlayerUtils.getNameFromUUID(member.toString(), false));
-                        names.append(", ");
+                        names.append(" (");
+                        names.append(town.getRank(member).getName());
+                        names.append("), ");
                     }
                     sender.sendMessage("§aMembers (" + town.getMembers().size() + "): " + names.substring(0, names.length() - 2));
                     sender.sendMessage("§2§l§m====================================");
-                } else if (args[0].equalsIgnoreCase("withdraw")) {
-
+                } else if (args[0].equalsIgnoreCase("disband")) {
+                    // check if player is in a town
+                    if (town == null) {
+                        player.sendMessage(ChatColor.RED + "You need to be in a town to do this!");
+                        return true;
+                    }
+                    if (rank.getOrder() <= 1) {
+                        PlayerTowns.towns.remove(town);
+                        sender.sendMessage(ChatColor.GREEN + "Town has been disbanded successfully!");
+                    }
                 } else {
                     sendHelp(player);
                 }
@@ -320,57 +327,106 @@ public class TownCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§2§l§m=============§r§e Towns Help §e §2§l§m=============");
         sender.sendMessage("§a/town: §7Base command");
         sender.sendMessage("§a   create <name>: §7Create a town with the name");
-        sender.sendMessage("§a   join <name>: §7Join a town with the name");
+        sender.sendMessage("§a   invite <name>: §7Invite a player with the name");
         sender.sendMessage("§a   shop [<name>]: §7Open your town inventory (or another town's to buy things!)");
         sender.sendMessage("§a   send <town> <amount>: §7Send money to another town");
         sender.sendMessage("§a   list: §7List a few towns");
         sender.sendMessage("§a   info: §7See the information of your town");
+        sender.sendMessage("§a   promote <player>: §7Promote a player");
+        sender.sendMessage("§a   withdraw <amount>: §7Withdraw money from your town");
+        sender.sendMessage("§a   deposit <amount>: §7Deposit money to your town");
+        sender.sendMessage("§a   disband: §7Disband your town");
         sender.sendMessage("§a   leave: §7Leave your town");
         sender.sendMessage("§2§l§m====================================");
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        List<String> argList = new ArrayList<>();
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            Town town = Town.getTownFromPlayer(player);
+            Rank rank = town != null ? town.getRank(player.getUniqueId()) : null;
 
-        if (args.length == 1 && sender.hasPermission("cmd.towns.player")) {
-            argList.add("create");
-            argList.add("join");
-            argList.add("shop");
-            argList.add("send");
-            argList.add("list");
-            argList.add("info");
-            argList.add("leave");
-            return argList.stream().filter(a -> a.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
-        }
+            List<String> argList = new ArrayList<>();
 
-        if (args.length == 2 && sender.hasPermission("cmd.towns.player")) {
-            if (args[0].equalsIgnoreCase("create")) {
-                argList.add("<town name>");
-            } else if (args[0].equalsIgnoreCase("join")) {
-                for (Town t : PlayerTowns.towns) {
-                    argList.add(t.getTownName());
+            if (args.length == 1 && sender.hasPermission("cmd.towns.player")) {
+                if (Money.getMoney(player.getUniqueId()) >= PlayerTowns.mainConfig.cfg().getDouble("town-start-amount")) {
+                    argList.add("create");
                 }
-            } else if (args[0].equalsIgnoreCase("shop")) {
-                for (Town t : PlayerTowns.towns) {
-                    argList.add(t.getTownName());
+
+                argList.add("shop");
+                argList.add("list");
+
+                if (town != null) {
+                    argList.add("withdraw");
+                    argList.add("deposit");
+                    argList.add("invite");
+                    argList.add("leave");
+                    argList.add("info");
+
+                    if (rank.getOrder() <= 1) {
+                        argList.add("send");
+
+                    }
+                    if (rank.getOrder() == 0) {
+                        argList.add("promote");
+                        argList.add("disband");
+                    }
                 }
-            } else if (args[0].equalsIgnoreCase("send")) {
-                for (Town t : PlayerTowns.towns) {
-                    argList.add(t.getTownName());
-                }
+                return argList.stream().filter(a -> a.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
             }
 
-            return argList.stream().filter(a -> a.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
-        }
+            if (args.length == 2 && sender.hasPermission("cmd.towns.player")) {
+                if (args[0].equalsIgnoreCase("create")) {
+                    argList.add("<town name>");
+                } else if (args[0].equalsIgnoreCase("join")) {
+                    for (Town t : PlayerTowns.towns) {
+                        argList.add(t.getTownName());
+                    }
+                } else if (args[0].equalsIgnoreCase("shop")) {
+                    for (Town t : PlayerTowns.towns) {
+                        argList.add(t.getTownName());
+                    }
+                }
+                if (rank != null) {
+                    if (rank.getOrder() <= 1) {
+                        if (args[0].equalsIgnoreCase("send")) {
+                            for (Town t : PlayerTowns.towns) {
+                                argList.add(t.getTownName());
+                            }
+                        } else if (args[0].equalsIgnoreCase("withdraw")) {
+                            argList.add("<amount>");
+                        } else if (args[0].equalsIgnoreCase("deposit")) {
+                            argList.add("<amount>");
+                        } else if (args[0].equalsIgnoreCase("invite")) {
+                            for (Player p : Bukkit.getOnlinePlayers()) {
+                                if (p != player) {
+                                    argList.add(p.getName());
+                                }
+                            }
+                        }
+                        if (rank.getOrder() < 1) {
+                            if (args[0].equalsIgnoreCase("promote")) {
+                                for (UUID mem : town.getMembers().keySet()) {
+                                    argList.add(PlayerUtils.getNameFromUUID(mem.toString(), true));
+                                }
+                            }
+                        }
+                    }
+                }
 
-        if (args.length == 3 && sender.hasPermission("cmd.towns.player")) {
-            if (args[0].equalsIgnoreCase("send")) {
-                argList.add("<amount>");
+                return argList.stream().filter(a -> a.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
             }
 
-            return argList.stream().filter(a -> a.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
+            if (args.length == 3 && sender.hasPermission("cmd.towns.player")) {
+                if (args[0].equalsIgnoreCase("send") && (rank != null && rank.getOrder() <= 1)) {
+                    argList.add("<amount>");
+                }
+
+                return argList.stream().filter(a -> a.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
+            }
+            return argList;
         }
-        return argList;
+        return null;
     }
 }

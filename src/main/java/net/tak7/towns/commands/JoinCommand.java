@@ -25,25 +25,26 @@ public class JoinCommand implements CommandExecutor, TabCompleter {
                 String townName = args[0];
                 Player player = (Player) sender;
                 Town town = Town.getTownFromName(townName);
-
-                if (town != null) {
-
-                }
-
-
                 if (town != null) {
                     if (town.playerInvited(player)) {
                         Town leave = Town.getTownFromPlayer(player);
                         if (leave != null) {
-                            town.removePlayer(player.getUniqueId());
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&',
                                     PlayerTowns.mainConfig.cfg().getString("message-town-left").replace("%town%", town.getTownName())));
+                            leave.removePlayer(player.getUniqueId());
                         }
                         town.getMembers().put(player.getUniqueId(), Rank.CIVILIAN);
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&',
                                 PlayerTowns.mainConfig.cfg().getString("message-town-joined").replace("%town%", town.getTownName())));
-                        Invite remove;
-//                        for (Invite i : Player)
+                        Invite remove = null;
+                        for (Invite i : PlayerTowns.invitations) {
+                            if (i.getPlayer() == player && i.getTown() == town) {
+                                remove = i;
+                            }
+                        }
+                        PlayerTowns.invitations.remove(remove);
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "You do not have an invite for that town.");
                     }
                 } else {
                     sender.sendMessage(ChatColor.RED + "That town does not exist!");
@@ -54,7 +55,7 @@ public class JoinCommand implements CommandExecutor, TabCompleter {
         } else {
             sender.sendMessage(ChatColor.RED + "Only players can use this command!");
         }
-        return false;
+        return true;
     }
 
     @Override

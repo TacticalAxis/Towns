@@ -50,6 +50,7 @@ public class PlayerTowns extends JavaPlugin {
         towns = new ArrayList<>();
         boards = new ArrayList<>();
         money = new HashMap<>();
+        invitations = new ArrayList<>();
 
         registerEvents();
 

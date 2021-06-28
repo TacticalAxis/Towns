@@ -1,7 +1,7 @@
 package net.tak7.towns.objects;
 
+import net.tak7.api.PlayerUtils;
 import net.tak7.towns.PlayerTowns;
-import net.tak7.towns.events.BuyItemEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -11,6 +11,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -128,10 +129,6 @@ public class Town {
         PlayerTowns.townConfig.saveConfiguration();
     }
 
-    public static void deleteTown(Town town) {
-        PlayerTowns.towns.remove(town);
-    }
-
     public UUID getTownID() {
         return townID;
     }
@@ -194,6 +191,34 @@ public class Town {
         if (remove != null) {
             members.remove(remove);
         }
+
+        // delete town if no members left
+        Town town = this;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (town.getMembers().keySet().size() == 0) {
+                    PlayerTowns.towns.remove(town);
+                } else {
+                    boolean hasAdmin = false;
+                    for (UUID mem : town.getMembers().keySet()) {
+                        if (town.getMembers().get(mem) == Rank.ADMIN) {
+                            hasAdmin = true;
+                        }
+                    }
+                    if (!hasAdmin) {
+                        for (UUID mem : town.getMembers().keySet()) {
+                            // make absolutely sure they are admin
+                            town.promotePlayer(mem);
+                            town.promotePlayer(mem);
+                            town.promotePlayer(mem);
+                            town.sendMessage(ChatColor.GREEN + "Your town administrator left! " + PlayerUtils.getNameFromUUID(mem.toString(), false) + " was promoted to administrator!");
+                            break;
+                        }
+                    }
+                }
+            }
+        }.runTaskLater(PlayerTowns.getInstance(), 20L);
     }
 
     public Rank getRank(UUID player) {
@@ -257,29 +282,29 @@ public class Town {
         return null;
     }
 
-    public void buyItem(ItemStack item, Town sendTo, Player buyer) {
-        if (item != null) {
-            if (getPrice(item.getType().name()) != -1.0d) {
-                double price = getPrice(item.getType().name());
-                Material mat = item.clone().getType();
-                if (sendTo.getTownMoney() - price >= 0) {
-                    sendTo.removeMoney(price);
-                    addMoney(price);
-                    item.setAmount(item.getAmount() - 1);
-                    buyer.updateInventory();
-
-                    buyer.getInventory().addItem(new ItemStack(mat, 1));
-                    BuyItemEvent event = new BuyItemEvent(buyer, this, sendTo, new ItemStack(mat, 1), Transaction.SUCCESS, price);
-                    Bukkit.getPluginManager().callEvent(event);
-                } else {
-                    BuyItemEvent event = new BuyItemEvent(buyer, this, sendTo,  new ItemStack(mat, 1), Transaction.FAIL_INSUFFICIENT_FUNDS, price);
-                    Bukkit.getPluginManager().callEvent(event);
-                }
-            } else {
-                buyer.sendMessage(ChatColor.RED + "Not a valid shop item.");
-            }
-        }
-    }
+//    public void buyItem(ItemStack item, Town sendTo, Player buyer) {
+//        if (item != null) {
+//            if (getPrice(item.getType().name()) != -1.0d) {
+//                double price = getPrice(item.getType().name());
+//                Material mat = item.clone().getType();
+//                if (sendTo.getTownMoney() - price >= 0) {
+//                    sendTo.removeMoney(price);
+//                    addMoney(price);
+//                    item.setAmount(item.getAmount() - 1);
+//                    buyer.updateInventory();
+//
+//                    buyer.getInventory().addItem(new ItemStack(mat, 1));
+//                    BuyItemEvent event = new BuyItemEvent(buyer, this, sendTo, new ItemStack(mat, 1), Transaction.SUCCESS, price);
+//                    Bukkit.getPluginManager().callEvent(event);
+//                } else {
+//                    BuyItemEvent event = new BuyItemEvent(buyer, this, sendTo,  new ItemStack(mat, 1), Transaction.FAIL_INSUFFICIENT_FUNDS, price);
+//                    Bukkit.getPluginManager().callEvent(event);
+//                }
+//            } else {
+//                buyer.sendMessage(ChatColor.RED + "Not a valid shop item.");
+//            }
+//        }
+//    }
 
     public static Town getTownFromPlayer(Player player) {
         for(Town town : PlayerTowns.towns) {
@@ -301,15 +326,6 @@ public class Town {
         return null;
     }
 
-    public static boolean townAlreadyExists(String name) {
-        for (Town town : PlayerTowns.towns) {
-            if (town.getTownName().trim().equalsIgnoreCase(name.trim())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static double getPrice(String itemName) {
         List<String> sellable = PlayerTowns.mainConfig.cfg().getStringList("sellable-items");
         for (String name : sellable) {
@@ -318,10 +334,6 @@ public class Town {
             }
         }
         return -1.0d;
-    }
-
-    public void removeItem(ItemStack item) {
-        item.setAmount(0);
     }
 
     public static boolean inventoryIsShop(Inventory inventory) {

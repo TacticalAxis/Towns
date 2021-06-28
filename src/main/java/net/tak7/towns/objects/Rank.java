@@ -31,4 +31,8 @@ public enum Rank {
         }
         return null;
     }
+
+    public String getLetter() {
+        return name.substring(0,1).toUpperCase();
+    }
 }

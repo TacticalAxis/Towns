@@ -9,8 +9,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class BalanceCommand implements CommandExecutor, TabCompleter {
 
@@ -20,41 +22,76 @@ public class BalanceCommand implements CommandExecutor, TabCompleter {
         if (args.length == 0) {
             if (sender instanceof Player) {
                 sender.sendMessage("Your balance is: " + Money.getMoney(((Player) sender).getUniqueId()));
+            } else {
+                sender.sendMessage(ChatColor.RED + "You need to be a player to use this command, or do /bal <player name>");
             }
-        } else {
-            if (args.length == 3) {
-                if (!args[0].equalsIgnoreCase("set")) {
-                    sendHelp(sender);
-                    return true;
-                }
-
-                String uuid = PlayerUtils.getUUIDFromName(args[1], false);
-                if (uuid == null) {
-                    sender.sendMessage(ChatColor.RED + "That player does not exist!");
-                    return true;
-                }
-
-                // check money is legit
-                double amount = -1.0d;
-                try {
-                    amount = Double.parseDouble(args[2]);
-                    if (amount < 0) {
-                        throw new NumberFormatException("");
-                    }
-                } catch (Exception e) {
-                    sender.sendMessage(ChatColor.RED + "You need to enter a real non-negative number!");
-                    return true;
-                }
-
-                Money.setMoney(UUID.fromString(uuid), amount);
-                sender.sendMessage("You set " + args[1] + " to " + amount); // config
+        } else if (args.length == 1) {
+            if (!sender.hasPermission("cmd.towns.admin")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
             }
+
+            String playerName = args[0];
+            String uuid = PlayerUtils.getUUIDFromName(playerName, false);
+            if (uuid == null) {
+                sender.sendMessage(ChatColor.RED + "That player does not exist!");
+                return true;
+            }
+        } else if (args.length == 3) {
+            if (!sender.hasPermission("cmd.towns.admin")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+
+            String uuid = PlayerUtils.getUUIDFromName(args[0], false);
+            if (uuid == null) {
+                sender.sendMessage(ChatColor.RED + "That player does not exist!");
+                return true;
+            }
+
+            if (!args[1].equalsIgnoreCase("set")) {
+                sendHelp(sender);
+                return true;
+            }
+
+            // check money is legit
+            double amount = -1.0d;
+            try {
+                amount = Double.parseDouble(args[2]);
+                if (amount < 0) {
+                    throw new NumberFormatException("");
+                }
+            } catch (Exception e) {
+                sender.sendMessage(ChatColor.RED + "You need to enter a real non-negative number!");
+                return true;
+            }
+
+            Money.setMoney(UUID.fromString(uuid), amount);
+            sender.sendMessage("You set " + args[0] + " to " + amount); // config
         }
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
+        List<String> argList = new ArrayList<>();
+
+        if (args.length == 1 && sender.hasPermission("cmd.towns.admin")) {
+            argList = PlayerUtils.getAllPlayers();
+            return argList.stream().filter(a -> a.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        }
+
+        if (args.length == 2 && sender.hasPermission("cmd.towns.admin")) {
+            argList.add("set");
+            return argList.stream().filter(a -> a.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        }
+
+        if (args.length == 3 && sender.hasPermission("cmd.towns.admin")) {
+            if (args[1].equalsIgnoreCase("set")) {
+                argList.add("<amount>");
+            }
+            return argList.stream().filter(a -> a.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+        }
 
         return null;
     }
