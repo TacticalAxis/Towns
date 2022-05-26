@@ -12,7 +12,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-@SuppressWarnings("NullableProblems")
 public class SellhandCommand implements CommandExecutor {
 
     @Override

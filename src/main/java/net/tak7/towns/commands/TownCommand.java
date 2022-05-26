@@ -1,6 +1,6 @@
 package net.tak7.towns.commands;
 
-import net.tak7.api.PlayerUtils;
+import net.tak7.everythingapi.entity.PlayerUtils;
 import net.tak7.towns.PlayerTowns;
 import net.tak7.towns.objects.*;
 import org.apache.commons.lang.StringUtils;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"NullableProblems", "ConstantConditions"})
 public class TownCommand implements CommandExecutor, TabCompleter {
 
     @Override
@@ -35,13 +34,13 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                 if (args[0].equalsIgnoreCase("send")) {
                     // check if player is in a town
                     if (town == null) {
-                        player.sendMessage(ChatColor.RED + "You need to be in a town to do this!");
+                        player.sendMessage(CC.getMessage("not-in-town"));
                         return true;
                     }
 
                     // check rank
                     if (rank.getOrder() > 1) {
-                        player.sendMessage(ChatColor.RED + "You do not have permission to do this!");
+                        player.sendMessage(CC.getMessage("no-permission"));
                         return true;
                     }
 
@@ -49,7 +48,7 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                     String sendTownName = args[1];
                     Town sendTown = Town.getTownFromName(sendTownName);
                     if (sendTown == null) {
-                        player.sendMessage(CC.tr(PlayerTowns.mainConfig.cfg().getString("message-town-not-exists")));
+                        player.sendMessage(CC.getMessage("town-not-exists"));
                         return true;
                     }
 
@@ -61,7 +60,7 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                             throw new NumberFormatException("");
                         }
                     } catch (Exception e) {
-                        player.sendMessage(ChatColor.RED + "You need to enter a real non-negative number!");
+                        player.sendMessage(CC.getMessage("use-real-number"));
                         return true;
                     }
 
@@ -69,12 +68,12 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                     if (town.getTownMoney() - amount >= 0.0d) {
                         town.sendMoney(sendTown, amount);
                         player.sendMessage(
-                                CC.tr(PlayerTowns.mainConfig.cfg().getString("message-send-town-money")
+                                CC.getMessage("send-town-money")
                                                 .replace("%town%", town.getTownName())
                                                 .replace("%amount%", String.valueOf(amount))
-                                                .replace("%currency%", PlayerTowns.CURRENCY_NAME)));
+                                                .replace("%currency%", PlayerTowns.CURRENCY_NAME));
                     } else {
-                        player.sendMessage(ChatColor.RED + "You do not have enough money!");
+                        player.sendMessage(CC.getMessage("insufficient-funds"));
                         return true;
                     }
                 }
@@ -82,7 +81,7 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                 // create command
                 if (args[0].equalsIgnoreCase("create")) {
                     if (town != null) {
-                        player.sendMessage(CC.tr(PlayerTowns.mainConfig.cfg().getString("message-already-in-town")));
+                        player.sendMessage(CC.getMessage("already-in-town"));
                         return true;
                     }
 
@@ -93,30 +92,30 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                     }
 
                     if (Town.getTownFromName(townName) != null) {
-                        player.sendMessage(CC.tr(PlayerTowns.mainConfig.cfg().getString("message-town-exists")));
+                        player.sendMessage(CC.getMessage("town-exists"));
                         return true;
                     }
 
                     if ((Money.getMoney(player.getUniqueId()) - PlayerTowns.mainConfig.cfg().getDouble("town-start-amount")) < 0) {
-                        player.sendMessage(CC.tr(PlayerTowns.mainConfig.cfg().getString("message-player-insufficient-funds")));
+                        player.sendMessage(CC.getMessage("insufficient-funds"));
                         return true;
                     }
 
                     Town newTown = Town.createTown(townName, player);
                     PlayerTowns.towns.add(newTown);
-                    player.sendMessage(CC.tr(PlayerTowns.mainConfig.cfg().getString("message-town-created").replace("%town%", newTown.getTownName())));
+                    player.sendMessage(CC.getMessage("town-created").replace("%town%", newTown.getTownName()));
                     Money.subtractMoney(player.getUniqueId(), PlayerTowns.mainConfig.cfg().getDouble("town-start-amount"));
 
                 } else if (args[0].equalsIgnoreCase("invite")) {
                     // check if player is in a town
                     if (town == null) {
-                        player.sendMessage(ChatColor.RED + "You need to be in a town to do this!");
+                        player.sendMessage(CC.getMessage("not-in-town"));
                         return true;
                     }
 
                     // check rank
                     if (rank.getOrder() > 1) {
-                        player.sendMessage(ChatColor.RED + "You do not have permission to do this!");
+                        player.sendMessage(CC.getMessage("no-permission"));
                         return true;
                     }
 
@@ -130,7 +129,7 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                     }
 
                     if (invited == null) {
-                        player.sendMessage(ChatColor.RED + "That player is not online!");
+                        player.sendMessage(CC.getMessage("player-not-online"));
                         return true;
                     }
 
@@ -160,23 +159,23 @@ public class TownCommand implements CommandExecutor, TabCompleter {
 
                     // check if player is in a town
                     if (town == null) {
-                        player.sendMessage(ChatColor.RED + "You need to be in a town to do this!");
+                        player.sendMessage(CC.getMessage("not-in-town"));
                         return true;
                     }
 
                     // check rank
                     if (rank == null) {
-                        player.sendMessage(ChatColor.RED + "You do not have permission to do this!");
+                        player.sendMessage(CC.getMessage("no-permission"));
                         return true;
                     }
 
                     if (rank.getOrder() > 0) {
-                        player.sendMessage(ChatColor.RED + "You do not have permission to do this!");
+                        player.sendMessage(CC.getMessage("no-permission"));
                         return true;
                     }
 
                     if (uuid == null) {
-                        sender.sendMessage(ChatColor.RED + "That player does not exist!");
+                        sender.sendMessage(CC.getMessage("player-not-exist"));
                         return true;
                     }
 
@@ -201,26 +200,30 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                             throw new NumberFormatException("");
                         }
                     } catch (Exception e) {
-                        player.sendMessage(ChatColor.RED + "You need to enter a real non-negative number!");
+                        player.sendMessage(CC.getMessage("use-real-number"));
                         return true;
                     }
 
                     // check player has enough to deposit
                     if (Money.getMoney(player.getUniqueId()) < amount) {
-                        player.sendMessage(ChatColor.RED + "You don't have enough money to deposit!");
+                        player.sendMessage(CC.getMessage("insufficient-funds"));
                         return true;
                     }
 
                     // check if player is in a town
                     if (town == null) {
-                        player.sendMessage(ChatColor.RED + "You need to be in a town to do this!");
+                        player.sendMessage(CC.getMessage("not-in-town"));
                         return true;
                     }
 
                     // execute
                     town.setTownMoney(town.getTownMoney() + amount);
                     Money.setMoney(player.getUniqueId(), Money.getMoney(player.getUniqueId()) - amount);
-                    player.sendMessage(ChatColor.GREEN + "You successfully deposited " + amount + " to " + town.getTownName());
+
+                    player.sendMessage(CC.getMessage("deposit-item")
+                            .replace("%currency%", PlayerTowns.CURRENCY_NAME)
+                            .replace("%amount%", String.valueOf(amount))
+                            .replace("%town%",town.getTownName()));
                 } else if (args[0].equalsIgnoreCase("withdraw")) {
                     // check money is legit
                     double amount = -1.0d;
@@ -230,26 +233,29 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                             throw new NumberFormatException("");
                         }
                     } catch (Exception e) {
-                        player.sendMessage(ChatColor.RED + "You need to enter a real non-negative number!");
+                        player.sendMessage(CC.getMessage("use-real-number"));
                         return true;
                     }
 
                     // check if player is in a town
                     if (town == null) {
-                        player.sendMessage(ChatColor.RED + "You need to be in a town to do this!");
+                        player.sendMessage(CC.getMessage("not-in-town"));
                         return true;
                     }
 
                     // check player has enough money
                     if (town.getTownMoney() < amount) {
-                        player.sendMessage(ChatColor.RED + "Your town doesn't have enough money to withdraw!");
+                        player.sendMessage(CC.getMessage("insufficient-funds"));
                         return true;
                     }
 
                     // execute
                     town.setTownMoney(town.getTownMoney() - amount);
                     Money.setMoney(player.getUniqueId(), Money.getMoney(player.getUniqueId()) + amount);
-                    player.sendMessage(ChatColor.GREEN + "You successfully withdrew " + amount + " from " + town.getTownName());
+                    player.sendMessage(CC.getMessage("withdraw-item")
+                            .replace("%currency%", PlayerTowns.CURRENCY_NAME)
+                            .replace("%amount%", String.valueOf(amount))
+                            .replace("%town%",town.getTownName()));
                 } else {
                     sendHelp(sender);
                 }
@@ -257,14 +263,13 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                 if (args[0].equalsIgnoreCase("leave")) {
                     // check if player is in a town
                     if (town == null) {
-                        player.sendMessage(ChatColor.RED + "You need to be in a town to do this!");
+                        player.sendMessage(CC.getMessage("not-in-town"));
                         return true;
                     }
 
                     // remove player from town
                     town.removePlayer(player.getUniqueId());
-                    player.sendMessage(CC.tr(PlayerTowns.mainConfig.cfg().getString("message-town-left").replace("%town%", town.getTownName())));
-
+                    player.sendMessage(CC.getMessage("town-left").replace("%town%", town.getTownName()));
                 } else if (args[0].equalsIgnoreCase("list")) {
                     player.sendMessage(ChatColor.BOLD + "" + ChatColor.GREEN + "Towns:");
                     int count = 0;
@@ -278,7 +283,7 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                 } else if (args[0].equalsIgnoreCase("shop")) {
                     // check if player is in a town
                     if (town == null) {
-                        player.sendMessage(ChatColor.RED + "You need to be in a town to do this!");
+                        player.sendMessage(CC.getMessage("not-in-town"));
                         return true;
                     }
 
@@ -286,7 +291,7 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                 } else if (args[0].equalsIgnoreCase("info")) {
                     // check if player is in a town
                     if (town == null) {
-                        player.sendMessage(ChatColor.RED + "You need to be in a town to do this!");
+                        player.sendMessage(CC.getMessage("not-in-town"));
                         return true;
                     }
 
@@ -307,12 +312,13 @@ public class TownCommand implements CommandExecutor, TabCompleter {
                 } else if (args[0].equalsIgnoreCase("disband")) {
                     // check if player is in a town
                     if (town == null) {
-                        player.sendMessage(ChatColor.RED + "You need to be in a town to do this!");
+                        player.sendMessage(CC.getMessage("not-in-town"));
                         return true;
                     }
                     if (rank.getOrder() <= 1) {
+                        town.sendMessage("This town has been disbanded!");
                         PlayerTowns.towns.remove(town);
-                        sender.sendMessage(ChatColor.GREEN + "Town has been disbanded successfully!");
+                        sender.sendMessage(CC.getMessage("disband-town"));
                     }
                 } else {
                     sendHelp(player);

@@ -1,6 +1,6 @@
 package net.tak7.towns.commands;
 
-import net.tak7.api.PlayerUtils;
+import net.tak7.everythingapi.entity.PlayerUtils;
 import net.tak7.towns.objects.CC;
 import net.tak7.towns.objects.Money;
 import org.bukkit.ChatColor;
@@ -40,7 +40,7 @@ public class BalanceCommand implements CommandExecutor, TabCompleter {
             }
 
             sender.sendMessage(CC.getMessage("check-balance-other")
-                    .replace("%money%", String.valueOf(Money.getMoney(((Player) sender).getUniqueId())))
+                    .replace("%money%", String.valueOf(Money.getMoney(UUID.fromString(uuid))))
                     .replace("%player%", playerName));
         } else if (args.length == 3) {
             if (!sender.hasPermission("cmd.towns.admin")) {

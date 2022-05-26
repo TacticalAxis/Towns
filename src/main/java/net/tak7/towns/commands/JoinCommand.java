@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"NullableProblems"})
 public class JoinCommand implements CommandExecutor, TabCompleter {
 
     @Override

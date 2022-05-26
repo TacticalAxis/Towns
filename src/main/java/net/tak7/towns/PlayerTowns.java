@@ -1,7 +1,10 @@
 package net.tak7.towns;
 
-import net.tak7.api.CustomConfiguration;
-import net.tak7.api.FastBoard;
+//import net.tak7.api.CustomConfiguration;
+//import net.tak7.api.FastBoard;
+
+import net.tak7.everythingapi.config.CustomConfiguration;
+import net.tak7.everythingapi.scoreboard.FastBoard;
 import net.tak7.towns.commands.*;
 import net.tak7.towns.listeners.InventoryEvents;
 import net.tak7.towns.listeners.ServerEvents;

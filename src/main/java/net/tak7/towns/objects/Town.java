@@ -1,6 +1,6 @@
 package net.tak7.towns.objects;
 
-import net.tak7.api.PlayerUtils;
+import net.tak7.everythingapi.entity.PlayerUtils;
 import net.tak7.towns.PlayerTowns;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,7 +22,6 @@ public class Town {
     private double townMoney;
     private Inventory communityChest;
     private HashMap<UUID, Rank> members;
-
 
     public Town(UUID townID, String townName, double townMoney, Inventory communityChest, HashMap<UUID, Rank> members) {
         this.townID = townID;
@@ -56,7 +55,7 @@ public class Town {
 
             Inventory items = Bukkit.createInventory(null, 54, ChatColor.GREEN + townName + " [Shop]");
             for (String entry : cfg.getStringList("community-chest")) {
-                if(getPrice(entry.split(";")[0].toUpperCase()) != -1.0d) {
+                if (getPrice(entry.split(";")[0].toUpperCase()) != -1.0d) {
                     try {
                         String itemName = entry.split(";")[0];
                         int amount = Integer.parseInt(entry.split(";")[1]);
@@ -127,6 +126,64 @@ public class Town {
             thisTown.set("members", convertedPlayers);
         }
         PlayerTowns.townConfig.saveConfiguration();
+    }
+
+    public static boolean isShop(InventoryView inventory) {
+        return inventory.getTitle().split(" ")[inventory.getTitle().split(" ").length - 1].equals("[Shop]");
+    }
+
+    public static Town getShop(InventoryView inventory) {
+        for (Town town : PlayerTowns.towns) {
+            if (town.getTownName().equals(inventory.getTitle().split(" ")[0].replace(ChatColor.GREEN + "", ""))) {
+                return town;
+            }
+        }
+        return null;
+    }
+
+    public static Town getTownFromPlayer(Player player) {
+        for (Town town : PlayerTowns.towns) {
+            for (UUID uuid : town.getMembers().keySet()) {
+                if (uuid.compareTo(player.getUniqueId()) == 0) {
+                    return town;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static Town getTownFromName(String name) {
+        for (Town town : PlayerTowns.towns) {
+            if (town.getTownName().trim().equals(name)) {
+                return town;
+            }
+        }
+        return null;
+    }
+
+    public static double getPrice(String itemName) {
+        List<String> sellable = PlayerTowns.mainConfig.cfg().getStringList("sellable-items");
+        for (String name : sellable) {
+            if (name.split(";")[0].equalsIgnoreCase(itemName.trim())) {
+                return Double.parseDouble(name.split(";")[1]);
+            }
+        }
+        return -1.0d;
+    }
+
+    public static boolean inventoryIsShop(Inventory inventory) {
+        for (Town town : PlayerTowns.towns) {
+            if (town.getCommunityChest() == inventory) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static List<Town> getOrderedTowns() {
+        List<Town> toReturn = new ArrayList<>(PlayerTowns.towns);
+        toReturn.sort(Comparator.comparing(Town::getTownMoney).reversed());
+        return toReturn;
     }
 
     public UUID getTownID() {
@@ -265,64 +322,6 @@ public class Town {
 
     public void openShop(Player player) {
         player.openInventory(getCommunityChest());
-    }
-
-    public static boolean isShop(InventoryView inventory) {
-        return inventory.getTitle().split(" ")[inventory.getTitle().split(" ").length - 1].equals("[Shop]");
-    }
-
-    public static Town getShop(InventoryView inventory) {
-        for (Town town : PlayerTowns.towns) {
-            if (town.getTownName().equals(inventory.getTitle().split(" ")[0].replace(ChatColor.GREEN + "", ""))) {
-                return town;
-            }
-        }
-        return null;
-    }
-
-    public static Town getTownFromPlayer(Player player) {
-        for(Town town : PlayerTowns.towns) {
-            for (UUID uuid : town.getMembers().keySet()) {
-                if (uuid.compareTo(player.getUniqueId()) == 0) {
-                    return town;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static Town getTownFromName(String name) {
-        for(Town town : PlayerTowns.towns) {
-            if (town.getTownName().trim().equals(name)) {
-                return town;
-            }
-        }
-        return null;
-    }
-
-    public static double getPrice(String itemName) {
-        List<String> sellable = PlayerTowns.mainConfig.cfg().getStringList("sellable-items");
-        for (String name : sellable) {
-            if (name.split(";")[0].equalsIgnoreCase(itemName.trim())) {
-                return Double.parseDouble(name.split(";")[1]);
-            }
-        }
-        return -1.0d;
-    }
-
-    public static boolean inventoryIsShop(Inventory inventory) {
-        for (Town town : PlayerTowns.towns) {
-            if (town.getCommunityChest() == inventory) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static List<Town> getOrderedTowns() {
-        List<Town> toReturn = new ArrayList<>(PlayerTowns.towns);
-        toReturn.sort(Comparator.comparing(Town::getTownMoney).reversed());
-        return toReturn;
     }
 
     public void promotePlayer(UUID uuid) {

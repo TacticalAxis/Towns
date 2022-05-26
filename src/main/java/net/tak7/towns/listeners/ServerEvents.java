@@ -1,6 +1,6 @@
 package net.tak7.towns.listeners;
 
-import net.tak7.api.FastBoard;
+import net.tak7.everythingapi.scoreboard.FastBoard;
 import net.tak7.towns.PlayerTowns;
 import net.tak7.towns.objects.CC;
 import org.bukkit.ChatColor;

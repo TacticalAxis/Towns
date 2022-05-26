@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("ConstantConditions")
 public class PlayerTownCommand implements CommandExecutor, TabCompleter {
 
     @Override
